@@ -1,0 +1,394 @@
+openapi: 3.0.3
+info:
+  title: STD23104 - FINAL TD - PART1
+  version: "1.0.4"
+servers:
+  - url: https://localhost.std23104.com
+paths:
+  /competitions:
+    get:
+      summary: Get a list of competitions
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: List of competitions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  totalItems:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Competition"
+        500:
+          description: Internal server error
+
+    post:
+      summary: Create competition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCompetition"
+      responses:
+        201:
+          description: Competition created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Competition"
+        400:
+          description: Bad request - Invalid input data
+        500:
+          description: Internal server error
+
+  /teams:
+    get:
+      summary: Get a list of teams
+      parameters:
+        - in: query
+          name: teamName
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: List of teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  totalItems:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Team"
+        500:
+          description: Internal server error
+
+    post:
+      summary: Create a team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeam"
+      responses:
+        201:
+          description: New team created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+        400:
+          description: Bad request - Invalid input data
+        500:
+          description: Internal server error
+
+  /teams/{teamId}/players:
+    get:
+      summary: Get a list of players for a team
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: playerName
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: List of players for the team
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  totalItems:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Player"
+        500:
+          description: Internal server error
+
+    post:
+      summary: Create a new player for a team
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlayer"
+      responses:
+        201:
+          description: Player created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        400:
+          description: Bad request - Invalid input data
+        500:
+          description: Internal server error
+
+    put:
+      summary: Update a player in a team
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: playerId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePlayer"
+      responses:
+        200:
+          description: Player updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        400:
+          description: Bad request - Invalid input data
+        404:
+          description: Player not found
+        500:
+          description: Internal server error
+
+  /teams/{teamId}/competitions:
+    post:
+      summary: Associate a team with competitions
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CompetitionId"
+      responses:
+        200:
+          description: Competitions associated
+        400:
+          description: Bad request - Invalid input data
+        500:
+          description: Internal server error
+
+  /teams/{teamId}/players/{playerId}/assign:
+    post:
+      summary: Assign players to a team
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: playerId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Player assigned
+        400:
+          description: Bad request - Invalid input data
+        404:
+          description: Team or player not found
+        500:
+          description: Internal server error
+
+components:
+  schemas:
+    Competition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+      required:
+        - id
+        - name
+        - location
+
+    CreateCompetition:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+      required:
+        - name
+        - location
+
+    Team:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slogan:
+          type: string
+        competitions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Competition"
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+      required:
+        - id
+        - name
+        - slogan
+
+    CreateTeam:
+      type: object
+      properties:
+        name:
+          type: string
+        slogan:
+          type: string
+      required:
+        - name
+        - slogan
+
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        number:
+          type: integer
+        foot:
+          type: string
+          enum:
+            - Left
+            - Right
+      required:
+        - id
+        - name
+        - number
+        - foot
+
+    CreatePlayer:
+      type: object
+      properties:
+        name:
+          type: string
+        number:
+          type: integer
+        foot:
+          type: string
+          enum:
+            - Left
+            - Right
+      required:
+        - name
+        - number
+        - foot
+
+    UpdatePlayer:
+      type: object
+      properties:
+        name:
+          type: string
+        number:
+          type: integer
+        foot:
+          type: string
+          enum:
+            - Left
+            - Right
+
+    CompetitionId:
+      type: object
+      properties:
+        id:
+          type: string
